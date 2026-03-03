@@ -68,10 +68,14 @@ export function useProducts(initialLimit: number = 10): UseProductsReturn {
     });
 
     const debouncedSearch = useDebounce(search, 300);
-    const debouncedFilters = useDebounce(filters, 300);
 
-    // Stable string key for debounced filter values — avoids object reference comparison issues
-    const filtersKey = `${debouncedFilters.minPrice}|${debouncedFilters.maxPrice}|${debouncedFilters.minStock}|${debouncedFilters.maxStock}|${debouncedFilters.recentlyAdded}`;
+    // Debounce filter values as a JSON string so useDebounce compares primitives (not object refs)
+    const filtersJson = JSON.stringify(filters);
+    const debouncedFiltersJson = useDebounce(filtersJson, 300);
+    const debouncedFilters: Filters = JSON.parse(debouncedFiltersJson);
+
+    // Stable primitive key for dependency tracking
+    const filtersKey = debouncedFiltersJson;
 
     // Request cancellation: only the latest request's response is applied
     const fetchIdRef = useRef(0);
@@ -89,10 +93,10 @@ export function useProducts(initialLimit: number = 10): UseProductsReturn {
                 search: debouncedSearch,
                 sort,
                 order,
-                minPrice: debouncedFilters.minPrice || undefined,
-                maxPrice: debouncedFilters.maxPrice || undefined,
-                minStock: debouncedFilters.minStock || undefined,
-                maxStock: debouncedFilters.maxStock || undefined,
+                minPrice: debouncedFilters.minPrice !== '' ? Number(debouncedFilters.minPrice) : undefined,
+                maxPrice: debouncedFilters.maxPrice !== '' ? Number(debouncedFilters.maxPrice) : undefined,
+                minStock: debouncedFilters.minStock !== '' ? Number(debouncedFilters.minStock) : undefined,
+                maxStock: debouncedFilters.maxStock !== '' ? Number(debouncedFilters.maxStock) : undefined,
                 recentlyAdded: debouncedFilters.recentlyAdded || undefined,
             };
 

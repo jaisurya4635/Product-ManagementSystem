@@ -54,10 +54,10 @@ export interface ProductQueryParams {
     search: string;
     sort: string;
     order: 'asc' | 'desc';
-    minPrice?: string;
-    maxPrice?: string;
-    minStock?: string;
-    maxStock?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minStock?: number;
+    maxStock?: number;
     recentlyAdded?: boolean;
 }
 
